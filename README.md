@@ -68,7 +68,7 @@ tool отсутствует.
 На сервере под тем же Unix-пользователем, которому принадлежит Iva:
 
 ```bash
-iva plugin add mamysh/iva-file-delivery/plugin@v0.1.0
+iva plugin add mamysh/iva-file-delivery/plugin@v0.1.1
 iva plugin list
 iva doctor
 ```

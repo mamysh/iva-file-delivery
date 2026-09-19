@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "file-delivery",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Send local files to the owner's current private Telegram chat as the Iva bot.",
   "extensions": {
     "sh.iva": {}

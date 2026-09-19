@@ -1,7 +1,7 @@
 # Release process
 
-1. Обновить version в `package.json`, `package-lock.json`, `plugin/plugin.json` и
-   `plugin/sh.iva/package.json`.
+1. Обновить version в `package.json`, корневом `package-lock.json`, `plugin/plugin.json`,
+   `plugin/sh.iva/package.json` и `plugin/sh.iva/package-lock.json`.
 2. Добавить датированный раздел в `CHANGELOG.md` и при необходимости обновить compatibility.
 3. Выполнить `npm ci`, `npm run check`, `npm audit --audit-level=high` и `git diff --check`.
 4. Просмотреть весь staged diff и вывод `git status --ignored`; приватные локальные файлы не
