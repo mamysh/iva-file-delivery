@@ -10,11 +10,12 @@ async function json(path) {
 const root = resolve(".");
 const pluginRoot = resolve("plugin");
 const semver = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)$/u;
-const [packageJson, packageLock, manifest, extensionPackage, changelog] =
+const [packageJson, packageLock, manifest, mcp, extensionPackage, changelog] =
   await Promise.all([
     json("package.json"),
     json("package-lock.json"),
     json("plugin/plugin.json"),
+    json("plugin/mcp.json"),
     json("plugin/sh.iva/package.json"),
     readFile("CHANGELOG.md", "utf8"),
   ]);
@@ -27,6 +28,19 @@ assert.equal(extensionPackage.version, packageJson.version);
 assert.equal(packageJson.license, "MIT");
 assert.equal(manifest.name, "file-delivery");
 assert.deepEqual(manifest.extensions, { "sh.iva": {} });
+assert.deepEqual(mcp.mcpServers, {
+  updates: {
+    type: "stdio",
+    command: "node",
+    args: ["${PLUGIN_ROOT}/update-server.mjs"],
+  },
+});
+const updaterSource = await readFile("update/mcp-server.ts", "utf8");
+assert.match(
+  updaterSource,
+  new RegExp(`version: "${packageJson.version.replaceAll(".", "\\.")}"`, "u"),
+  "updater MCP version must match the package version",
+);
 assert.match(
   changelog,
   new RegExp(`^## ${packageJson.version.replaceAll(".", "\\.")} — `, "mu"),

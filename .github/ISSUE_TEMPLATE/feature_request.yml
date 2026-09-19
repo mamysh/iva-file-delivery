@@ -24,5 +24,7 @@ body:
       options:
         - label: The proposal does not add an arbitrary chat ID, public upload host, or path outside attachments.
           required: true
+        - label: The proposal does not let the model choose an update source, ref, plugin, or command.
+          required: true
         - label: The example contains no real token, identifier, file content or server path.
           required: true

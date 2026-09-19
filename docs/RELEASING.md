@@ -4,6 +4,7 @@
    `plugin/sh.iva/package.json` и `plugin/sh.iva/package-lock.json`.
 2. Добавить датированный раздел в `CHANGELOG.md` и при необходимости обновить compatibility.
 3. Выполнить `npm ci`, `npm run check`, `npm audit --audit-level=high` и `git diff --check`.
+   Если менялся updater, убедиться, что оба сгенерированных bundle обновлены и закоммичены.
 4. Просмотреть весь staged diff и вывод `git status --ignored`; приватные локальные файлы не
    должны попасть в commit.
 5. Отправить commit в `main` и дождаться зелёного GitHub Actions.

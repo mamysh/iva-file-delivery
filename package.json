@@ -1,8 +1,8 @@
 {
   "name": "iva-file-delivery",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "private": true,
-  "description": "An Iva plugin that sends local files to the owner's current private Telegram chat as the Iva bot.",
+  "description": "An Iva plugin for private bot-authored Telegram file delivery with owner-confirmed updates from chat.",
   "homepage": "https://github.com/mamysh/iva-file-delivery#readme",
   "repository": {
     "type": "git",
@@ -15,20 +15,26 @@
     "iva",
     "agent-plugin",
     "telegram-bot",
-    "file-upload"
+    "file-upload",
+    "mcp"
   ],
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "cd plugin/sh.iva && ../../node_modules/.bin/eve extension build",
-    "typecheck": "tsc --noEmit -p plugin/sh.iva/tsconfig.json",
+    "build:extension": "cd plugin/sh.iva && ../../node_modules/.bin/eve extension build",
+    "build:updater": "node scripts/build-updater.mjs",
+    "build": "npm run build:extension && npm run build:updater",
+    "typecheck": "tsc --noEmit -p plugin/sh.iva/tsconfig.json && tsc --noEmit -p update/tsconfig.json",
     "test": "node --test test/*.test.ts",
+    "check:bundle": "node scripts/check-updater-bundle.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:distribution": "node scripts/check-distribution.mjs",
-    "check": "npm run check:secrets && npm run check:distribution && npm run typecheck && npm test && npm run build"
+    "check": "npm run check:secrets && npm run check:distribution && npm run typecheck && npm test && npm run build && npm run check:bundle"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
     "@types/node": "24.x",
+    "esbuild": "0.28.2",
     "eve": "0.51.1",
     "typescript": "~6.0.3",
     "zod": "4.4.3"

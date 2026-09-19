@@ -22,3 +22,5 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm audit --audit-level=high
+      - name: Verify committed updater bundles
+        run: git diff --exit-code -- plugin/update-server.mjs plugin/update-worker.mjs

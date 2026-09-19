@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.0 — 2026-09-19
+
+- Добавлен такой же owner-confirmed update-flow, как в `iva-bitrix24`: проверка SemVer и
+  GitHub Actions, нативные кнопки Iva, одноразовый offer token и отдельная systemd job.
+- Worker обновляет только уже установленный `file-delivery`, сверяет точный SHA, запускает
+  `iva doctor` и возвращает предыдущую версию при неуспешной диагностике.
+- Добавлены три MCP-инструмента проверки, применения и статуса. Для них требуется один раз
+  выполнить `iva plugin trust file-delivery`; Telegram token MCP-процессу не передаётся.
+- Добавлены bundle smoke-test, worker tests и отрицательные тесты moving ref, CI и approval.
+
 ## 0.1.1 — 2026-09-19
 
 - Добавлен lock-файл runtime-пакета: Iva теперь использует `npm ci`, а Zod не разрешается
