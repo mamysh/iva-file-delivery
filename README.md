@@ -68,7 +68,7 @@ tool отсутствует.
 На сервере под тем же Unix-пользователем, которому принадлежит Iva:
 
 ```bash
-iva plugin add mamysh/iva-file-delivery/plugin@v0.1.1
+iva plugin add mamysh/iva-file-delivery/plugin@stable
 iva plugin list
 iva doctor
 ```
@@ -76,6 +76,10 @@ iva doctor
 Дополнительный `.env` не нужен. Установщик Iva сам соберёт Extension и перезапустит агент по
 своему штатному lifecycle. Для первого теста попросите Иву создать небольшой текстовый файл и
 прислать его в текущий чат.
+
+Ветка `stable` двигается только на проверенные выпуски и позволяет использовать
+`iva plugin update file-delivery`. Для полностью неизменяемой установки укажите точный tag,
+например `@v0.1.1`.
 
 Пошаговая установка, обновление, удаление и troubleshooting находятся в
 [docs/SETUP.md](docs/SETUP.md).

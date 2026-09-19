@@ -11,13 +11,15 @@
 ## 2. Установка стабильного выпуска
 
 ```bash
-iva plugin add mamysh/iva-file-delivery/plugin@v0.1.1
+iva plugin add mamysh/iva-file-delivery/plugin@stable
 iva plugin list
 iva doctor
 ```
 
 В исходнике есть Eve Extension, поэтому Iva соберёт новую версию и выполнит штатный restart.
 Не копируйте файлы напрямую в `data/custom` и не редактируйте plugin registry вручную.
+`stable` двигается только после зелёного release CI. Для неизменяемого source используйте
+точный tag `@v0.1.1`, но переход на следующий tag потребует remove/add по правилам Iva.
 
 ## 3. Первый тест
 
@@ -40,9 +42,10 @@ iva plugin update file-delivery
 iva doctor
 ```
 
-Установка по release tag фиксирует первую версию. Для перехода на новый release tag может
-потребоваться повторно указать новый source согласно plugin lifecycle текущей Iva. Не
-переключайте production на `@main` без контролируемого теста.
+Установка из `@stable` обновляется штатной командой выше. Установка по release tag фиксирует
+версию; чтобы перейти на другой tag или на `stable`, удалите plugin и добавьте его из нового
+source. Данные plugin сохраняются по правилам Iva. Не переключайте production на `@main` без
+контролируемого теста.
 
 ## 5. Отключение и удаление
 
