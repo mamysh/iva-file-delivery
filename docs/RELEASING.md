@@ -1,0 +1,16 @@
+# Release process
+
+1. Обновить version в `package.json`, `package-lock.json`, `plugin/plugin.json` и
+   `plugin/sh.iva/package.json`.
+2. Добавить датированный раздел в `CHANGELOG.md` и при необходимости обновить compatibility.
+3. Выполнить `npm ci`, `npm run check`, `npm audit --audit-level=high` и `git diff --check`.
+4. Просмотреть весь staged diff и вывод `git status --ignored`; приватные локальные файлы не
+   должны попасть в commit.
+5. Отправить commit в `main` и дождаться зелёного GitHub Actions.
+6. Создать подписанный или annotated tag `vX.Y.Z` на проверенном commit и GitHub Release с
+   краткими release notes.
+7. Выполнить clean install по точному tag и canary-отправку синтетического файла.
+
+Release tag неизменяем. Исправление публикуется новой SemVer-версией, а не переносом старого
+tag. Секреты, реальные идентификаторы, содержимое файлов и серверные пути не входят ни в
+release notes, ни в artifacts.

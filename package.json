@@ -1,0 +1,39 @@
+{
+  "name": "iva-file-delivery",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An Iva plugin that sends local files to the owner's current private Telegram chat as the Iva bot.",
+  "homepage": "https://github.com/mamysh/iva-file-delivery#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mamysh/iva-file-delivery.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mamysh/iva-file-delivery/issues"
+  },
+  "keywords": [
+    "iva",
+    "agent-plugin",
+    "telegram-bot",
+    "file-upload"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "cd plugin/sh.iva && ../../node_modules/.bin/eve extension build",
+    "typecheck": "tsc --noEmit -p plugin/sh.iva/tsconfig.json",
+    "test": "node --test test/*.test.ts",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check:distribution": "node scripts/check-distribution.mjs",
+    "check": "npm run check:secrets && npm run check:distribution && npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "24.x",
+    "eve": "0.51.1",
+    "typescript": "~6.0.3",
+    "zod": "4.4.3"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

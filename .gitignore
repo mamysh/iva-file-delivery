@@ -1,0 +1,8 @@
+node_modules/
+plugin/sh.iva/node_modules/
+plugin/sh.iva/dist/
+coverage/
+.DS_Store
+LOCAL_PROJECT_MEMORY.md
+AGENTS.md
+PRIVATE_PLAN.md

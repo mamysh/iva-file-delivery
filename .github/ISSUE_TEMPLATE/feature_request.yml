@@ -1,0 +1,28 @@
+name: Feature request
+description: Propose a narrowly scoped capability
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Describe the desired outcome without private data.
+    validations:
+      required: true
+  - type: textarea
+    id: boundary
+    attributes:
+      label: Security and privacy impact
+      description: How would this affect destination binding, allowed files, secrets, traces and third-party processing?
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Boundary check
+      options:
+        - label: The proposal does not add an arbitrary chat ID, public upload host, or path outside attachments.
+          required: true
+        - label: The example contains no real token, identifier, file content or server path.
+          required: true
