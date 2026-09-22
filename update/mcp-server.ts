@@ -52,7 +52,7 @@ async function safe(run: () => Promise<unknown>) {
 }
 
 export function createMcpServer(updater: PluginUpdaterPort): McpServer {
-  const server = new McpServer({ name: "file-delivery-updates", version: "0.3.0" });
+  const server = new McpServer({ name: "file-delivery-updates", version: "0.3.1" });
   server.registerTool(
     "iva_file_delivery_update_check",
     {

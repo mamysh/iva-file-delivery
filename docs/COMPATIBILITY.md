@@ -5,7 +5,8 @@
 
 | Компонент | Версия или режим | Подтверждение | Статус |
 | --- | --- | --- | --- |
-| Iva | `0.4.3` | plugin lifecycle, auth context, native `ask_question`, MCP proxy и `iva doctor` | поддерживается |
+| Iva | `0.4.3` | plugin lifecycle, auth context, native `ask_question`, MCP proxy и `iva doctor` | проверена |
+| Iva | `0.4.6` | выпущена позже последней живой проверки плагина | живой тест ожидается |
 | Eve | `0.51.1` | typecheck, тесты и сборка Extension | поддерживается |
 | Node.js | `24` | CI, typecheck, тесты и build | поддерживается для разработки |
 | Telegram Bot API | `sendDocument`, `sendMediaGroup` | multipart contract, альбом из 2–10 документов и лимит 50 МБ на файл из официальной документации; тесты upload | поддерживается |

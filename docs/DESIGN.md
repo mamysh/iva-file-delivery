@@ -44,6 +44,7 @@ authenticated Telegram turn
 
 owner asks to check updates
   → update_check: recorded source/ref/SHA → candidate manifest → GitHub Actions
+  → CHANGELOG at candidate SHA → short summary in the update card
   → ask_question: Обновить / Позже
   → update_apply: one-time offer token + fresh SHA/CI recheck
   → transient user-systemd worker
