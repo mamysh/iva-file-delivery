@@ -31323,7 +31323,7 @@ async function safe(run) {
   }
 }
 function createMcpServer(updater) {
-  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.2.0" });
+  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.3.0" });
   server2.registerTool(
     "iva_file_delivery_update_check",
     {

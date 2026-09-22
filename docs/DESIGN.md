@@ -1,7 +1,7 @@
 # Устройство плагина
 
-`iva-file-delivery` добавляет Иве одну возможность без патча её ядра: загрузить уже готовый
-локальный файл владельцу текущего личного Telegram-чата от имени бота.
+`iva-file-delivery` добавляет Иве одну возможность без патча её ядра: загрузить уже готовые
+локальные файлы владельцу текущего личного Telegram-чата от имени бота.
 
 ## Цели
 
@@ -30,7 +30,7 @@
 
 ```text
 plugin/plugin.json
-  ├── sh.iva/extension       Eve Extension и file_delivery__send_document
+  ├── sh.iva/extension       Eve Extension и file_delivery__send_document(s)
   ├── mcp.json               отдельный updater MCP
   ├── update-server.mjs      три ограниченных update-tools
   ├── update-worker.mjs      detached systemd worker
@@ -38,8 +38,8 @@ plugin/plugin.json
 
 authenticated Telegram turn
   → privateTelegramTarget(auth)
-  → loadAttachment(relative path, vault/attachments)
-  → multipart sendDocument with Iva's existing bot token
+  → loadAttachment(relative paths, vault/attachments)
+  → multipart sendDocument или sendMediaGroup with Iva's existing bot token
   → same private chat
 
 owner asks to check updates

@@ -1,22 +1,27 @@
 ---
 name: send-file-to-chat
-description: Use when the owner asks Iva to send, attach, or deliver a local file in the current Telegram chat, or asks to check, apply, or inspect updates of the file-delivery plugin.
+description: Use when the owner asks Iva to send, attach, or deliver one or more local files in the current Telegram chat, or asks to check, apply, or inspect updates of the file-delivery plugin.
 ---
 
-# Send a file to the current chat
+# Send files to the current chat
 
-Use `file_delivery__send_document` when the owner asks for a generated or extracted
-file as a Telegram attachment.
+Use the file delivery tools when the owner asks for generated or extracted files as
+Telegram attachments.
 
-1. Create the finished file under `vault/attachments/`. Prefer a dated `outgoing/`
-   directory and a clear filename.
-2. Call `file_delivery__send_document` with the path relative to `vault/attachments/`.
-   Never pass an absolute path. Use `file_name` only when the stored filename is
-   unsuitable for the owner.
+1. Create every finished file under `vault/attachments/`. Prefer a dated `outgoing/`
+   directory and clear filenames.
+2. If there is one file, call `file_delivery__send_document`. If there are 2-10 files
+   for the same request or task, call `file_delivery__send_documents` once with all
+   paths in order. Do this automatically; the owner does not need to ask for a batch.
+   Different file formats belong in the same document album. Telegram limits one
+   album to 10 files; for more than 10, send consecutive albums of up to 10 and use
+   `file_delivery__send_document` for a final single file.
+   Paths must be relative to `vault/attachments/`. Never pass an absolute path.
+   Use `file_name` only when a stored filename is unsuitable for the owner.
 3. After a successful tool result, reply normally with a short explanation. The tool
    intentionally has no caption: ordinary reply text must continue through Iva's Outbox.
 
-The tool sends only to the authenticated owner's current private Telegram chat. It
+The tools send only to the authenticated owner's current private Telegram chat. They
 must refuse groups, other chats, schedules, CLI turns, paths outside
 `vault/attachments/`, hidden files, empty files, and files above 50 MB.
 
