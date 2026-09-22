@@ -48,7 +48,9 @@ When a fresh check reports an available candidate with successful CI, call the b
 `ask_question` tool with the returned `approvalPrompt.prompt`, `approvalPrompt.options` and
 `approvalPrompt.allowFreeform` exactly as returned. Do not rewrite the card, expose the token,
 or ask the owner to copy or type a confirmation phrase. Eve parks the turn and renders
-**⬆️ Обновить** / **Позже** as native Telegram buttons.
+**⬆️ Обновить** / **Позже** as native Telegram buttons. The card includes a bounded
+summary from the candidate commit's CHANGELOG for versions newer than the installed one,
+or a link to that exact CHANGELOG when the summary cannot be loaded.
 
 Only when the structured answer to that exact pending question has `optionId: "update"`, call
 `iva_file_delivery_update_apply` with the full `candidateSha` and hidden `approvalToken`

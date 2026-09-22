@@ -19,6 +19,8 @@ const PLUGIN_NAME = "file-delivery";
 const SHA = /^[a-f0-9]{40}$/u;
 const SEMVER = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
 const MANIFEST_LIMIT_BYTES = 64 * 1024;
+const CHANGELOG_LIMIT_BYTES = 64 * 1024;
+const SUMMARY_LIMIT_CHARS = 1_200;
 const OFFER_TTL_MS = 15 * 60 * 1000;
 const LOCK_STALE_MS = 2 * 60 * 60 * 1000;
 const JOB_START_TIMEOUT_MS = 2 * 60 * 1000;
@@ -124,6 +126,39 @@ function compareVersions(left: string, right: string): number {
     return leftPart > rightPart ? 1 : -1;
   }
   return 0;
+}
+
+function changeSummary(
+  changelog: string,
+  currentVersion: string,
+  candidateVersion: string,
+): string[] {
+  const changes: string[] = [];
+  let include = false;
+  for (const line of changelog.split(/\r?\n/u)) {
+    const heading = /^## (\d+\.\d+\.\d+) [—-] /u.exec(line);
+    if (heading) {
+      include =
+        compareVersions(heading[1]!, currentVersion) > 0 &&
+        compareVersions(heading[1]!, candidateVersion) <= 0;
+      continue;
+    }
+    if (!include) continue;
+    if (line.startsWith("- ")) {
+      changes.push(line.slice(2).trim());
+    } else if (/^\s{2,}\S/u.test(line) && changes.length > 0) {
+      changes[changes.length - 1] += ` ${line.trim()}`;
+    }
+  }
+  const summary: string[] = [];
+  let length = 0;
+  for (const change of changes) {
+    if (summary.length >= 8 || length + change.length > SUMMARY_LIMIT_CHARS) break;
+    summary.push(`• ${change}`);
+    length += change.length;
+  }
+  if (summary.length < changes.length) summary.push("• Остальное — в CHANGELOG.md.");
+  return summary;
 }
 
 function sourceFromEntry(entry: PluginEntry): GitSource | null {
@@ -305,6 +340,38 @@ export class PluginUpdater {
     return version;
   }
 
+  async #candidateChanges(
+    source: GitSource,
+    sha: string,
+    currentVersion: string,
+    candidateVersion: string,
+  ): Promise<string[]> {
+    const url = `https://raw.githubusercontent.com/${encodeURIComponent(source.owner)}/${encodeURIComponent(source.repo)}/${sha}/CHANGELOG.md`;
+    const fallback = [
+      `Список изменений: https://github.com/${source.owner}/${source.repo}/blob/${sha}/CHANGELOG.md`,
+    ];
+    try {
+      const response = await this.#operations.fetch(url, {
+        headers: {
+          accept: "text/plain",
+          "user-agent": "iva-file-delivery-updater",
+        },
+        redirect: "error",
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (!response.ok) return fallback;
+      const declaredLength = Number(response.headers.get("content-length"));
+      if (Number.isFinite(declaredLength) && declaredLength > CHANGELOG_LIMIT_BYTES)
+        return fallback;
+      const body = await response.text();
+      if (Buffer.byteLength(body, "utf8") > CHANGELOG_LIMIT_BYTES) return fallback;
+      const summary = changeSummary(body, currentVersion, candidateVersion);
+      return summary.length > 0 ? summary : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
   async #ci(
     source: GitSource,
     sha: string,
@@ -373,6 +440,15 @@ export class PluginUpdater {
       };
     }
     const ci = await this.#ci(source, candidateSha);
+    const changes =
+      ci === "success"
+        ? await this.#candidateChanges(
+            source,
+            candidateSha,
+            currentVersion,
+            candidateVersion,
+          )
+        : [];
     const approvalToken = this.#operations.token();
     if (!/^[A-F0-9]{24}$/u.test(approvalToken))
       throw new Error("UPDATE_APPROVAL_TOKEN_INVALID");
@@ -401,6 +477,7 @@ export class PluginUpdater {
       currentVersion,
       candidateVersion,
       ci,
+      ...(ci === "success" ? { changes } : {}),
       ...(ci === "success"
         ? {
             approvalToken,
@@ -411,6 +488,10 @@ export class PluginUpdater {
                 `v${currentVersion} → v${candidateVersion}`,
                 `Источник: ${source.label} @${source.ref}`,
                 "CI: success ✅",
+                "",
+                "Что изменится:",
+                ...changes,
+                "",
                 "Настройки и локальные данные будут сохранены.",
               ].join("\n"),
               options: [

@@ -31323,7 +31323,7 @@ async function safe(run) {
   }
 }
 function createMcpServer(updater) {
-  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.3.0" });
+  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.3.1" });
   server2.registerTool(
     "iva_file_delivery_update_check",
     {
@@ -31383,6 +31383,8 @@ var PLUGIN_NAME = "file-delivery";
 var SHA = /^[a-f0-9]{40}$/u;
 var SEMVER = /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$/u;
 var MANIFEST_LIMIT_BYTES = 64 * 1024;
+var CHANGELOG_LIMIT_BYTES = 64 * 1024;
+var SUMMARY_LIMIT_CHARS = 1200;
 var OFFER_TTL_MS = 15 * 60 * 1e3;
 var LOCK_STALE_MS = 2 * 60 * 60 * 1e3;
 var JOB_START_TIMEOUT_MS = 2 * 60 * 1e3;
@@ -31429,6 +31431,32 @@ function compareVersions(left, right) {
     return leftPart > rightPart ? 1 : -1;
   }
   return 0;
+}
+function changeSummary(changelog, currentVersion, candidateVersion) {
+  const changes = [];
+  let include = false;
+  for (const line of changelog.split(/\r?\n/u)) {
+    const heading = /^## (\d+\.\d+\.\d+) [—-] /u.exec(line);
+    if (heading) {
+      include = compareVersions(heading[1], currentVersion) > 0 && compareVersions(heading[1], candidateVersion) <= 0;
+      continue;
+    }
+    if (!include) continue;
+    if (line.startsWith("- ")) {
+      changes.push(line.slice(2).trim());
+    } else if (/^\s{2,}\S/u.test(line) && changes.length > 0) {
+      changes[changes.length - 1] += ` ${line.trim()}`;
+    }
+  }
+  const summary = [];
+  let length = 0;
+  for (const change of changes) {
+    if (summary.length >= 8 || length + change.length > SUMMARY_LIMIT_CHARS) break;
+    summary.push(`\u2022 ${change}`);
+    length += change.length;
+  }
+  if (summary.length < changes.length) summary.push("\u2022 \u041E\u0441\u0442\u0430\u043B\u044C\u043D\u043E\u0435 \u2014 \u0432 CHANGELOG.md.");
+  return summary;
 }
 function sourceFromEntry(entry) {
   if (typeof entry.source !== "string" || !entry.source) return null;
@@ -31588,6 +31616,32 @@ var PluginUpdater = class {
     if (!version2) throw new Error("CANDIDATE_VERSION_UNAVAILABLE");
     return version2;
   }
+  async #candidateChanges(source, sha, currentVersion, candidateVersion) {
+    const url2 = `https://raw.githubusercontent.com/${encodeURIComponent(source.owner)}/${encodeURIComponent(source.repo)}/${sha}/CHANGELOG.md`;
+    const fallback = [
+      `\u0421\u043F\u0438\u0441\u043E\u043A \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439: https://github.com/${source.owner}/${source.repo}/blob/${sha}/CHANGELOG.md`
+    ];
+    try {
+      const response = await this.#operations.fetch(url2, {
+        headers: {
+          accept: "text/plain",
+          "user-agent": "iva-file-delivery-updater"
+        },
+        redirect: "error",
+        signal: AbortSignal.timeout(1e4)
+      });
+      if (!response.ok) return fallback;
+      const declaredLength = Number(response.headers.get("content-length"));
+      if (Number.isFinite(declaredLength) && declaredLength > CHANGELOG_LIMIT_BYTES)
+        return fallback;
+      const body = await response.text();
+      if (Buffer.byteLength(body, "utf8") > CHANGELOG_LIMIT_BYTES) return fallback;
+      const summary = changeSummary(body, currentVersion, candidateVersion);
+      return summary.length > 0 ? summary : fallback;
+    } catch {
+      return fallback;
+    }
+  }
   async #ci(source, sha) {
     const url2 = `https://api.github.com/repos/${encodeURIComponent(source.owner)}/${encodeURIComponent(source.repo)}/actions/runs?head_sha=${sha}&per_page=20`;
     const response = await this.#operations.fetch(url2, {
@@ -31649,6 +31703,12 @@ var PluginUpdater = class {
       };
     }
     const ci = await this.#ci(source, candidateSha);
+    const changes = ci === "success" ? await this.#candidateChanges(
+      source,
+      candidateSha,
+      currentVersion,
+      candidateVersion
+    ) : [];
     const approvalToken = this.#operations.token();
     if (!/^[A-F0-9]{24}$/u.test(approvalToken))
       throw new Error("UPDATE_APPROVAL_TOKEN_INVALID");
@@ -31677,6 +31737,7 @@ var PluginUpdater = class {
       currentVersion,
       candidateVersion,
       ci,
+      ...ci === "success" ? { changes } : {},
       ...ci === "success" ? {
         approvalToken,
         approvalPrompt: {
@@ -31686,6 +31747,10 @@ var PluginUpdater = class {
             `v${currentVersion} \u2192 v${candidateVersion}`,
             `\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A: ${source.label} @${source.ref}`,
             "CI: success \u2705",
+            "",
+            "\u0427\u0442\u043E \u0438\u0437\u043C\u0435\u043D\u0438\u0442\u0441\u044F:",
+            ...changes,
+            "",
             "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0438 \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0441\u043E\u0445\u0440\u0430\u043D\u0435\u043D\u044B."
           ].join("\n"),
           options: [

@@ -70,7 +70,21 @@ function operations(
     fetch: async (input) => {
       const url = String(input);
       fetches.push(url);
-      return url.startsWith("https://raw.githubusercontent.com/")
+      return url.endsWith("/CHANGELOG.md")
+        ? new Response(
+            [
+              "# Changelog",
+              "## 0.2.0 — 2026-09-19",
+              "- Новая отправка файлов.",
+              "- Проверка обновлений в чате.",
+              "## 0.1.2 — 2026-09-18",
+              "- Исправлена отправка одного файла.",
+              "## 0.1.1 — 2026-09-18",
+              "- Старое изменение.",
+            ].join("\n"),
+            { status: 200, headers: { "content-type": "text/plain" } },
+          )
+        : url.startsWith("https://raw.githubusercontent.com/")
         ? new Response(
             JSON.stringify({ name: "file-delivery", version: NEW_VERSION }),
             { status: 200, headers: { "content-type": "application/json" } },
@@ -100,6 +114,11 @@ test("check binds a higher stable release to a button approval offer", async (t)
   assert.equal(result.candidateSha, NEW);
   assert.equal(result.currentVersion, OLD_VERSION);
   assert.equal(result.candidateVersion, NEW_VERSION);
+  assert.deepEqual(result.changes, [
+    "• Новая отправка файлов.",
+    "• Проверка обновлений в чате.",
+    "• Исправлена отправка одного файла.",
+  ]);
   assert.equal(result.approvalToken, "ABC123ABC123ABC123ABC123");
   assert.deepEqual(result.approvalPrompt, {
     prompt: [
@@ -108,6 +127,12 @@ test("check binds a higher stable release to a button approval offer", async (t)
       `v${OLD_VERSION} → v${NEW_VERSION}`,
       "Источник: mamysh/iva-file-delivery/plugin @stable",
       "CI: success ✅",
+      "",
+      "Что изменится:",
+      "• Новая отправка файлов.",
+      "• Проверка обновлений в чате.",
+      "• Исправлена отправка одного файла.",
+      "",
       "Настройки и локальные данные будут сохранены.",
     ].join("\n"),
     options: [
@@ -129,6 +154,26 @@ test("check binds a higher stable release to a button approval offer", async (t)
   assert.deepEqual(fetches, [
     `https://raw.githubusercontent.com/mamysh/iva-file-delivery/${NEW}/plugin/plugin.json`,
     `https://api.github.com/repos/mamysh/iva-file-delivery/actions/runs?head_sha=${NEW}&per_page=20`,
+    `https://raw.githubusercontent.com/mamysh/iva-file-delivery/${NEW}/CHANGELOG.md`,
+  ]);
+});
+
+test("missing changelog keeps an exact-version link in the approval card", async (t) => {
+  const paths = await world(t);
+  const base = operations([]);
+  const updater = new PluginUpdater(
+    { PLUGIN_ROOT: paths.root, PLUGIN_DATA: paths.pluginData },
+    {
+      ...base,
+      fetch: async (input, init) =>
+        String(input).endsWith("/CHANGELOG.md")
+          ? new Response("missing", { status: 404 })
+          : base.fetch!(input, init),
+    },
+  );
+  const result = (await updater.check()) as Record<string, unknown>;
+  assert.deepEqual(result.changes, [
+    `Список изменений: https://github.com/mamysh/iva-file-delivery/blob/${NEW}/CHANGELOG.md`,
   ]);
 });
 

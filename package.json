@@ -1,6 +1,6 @@
 {
   "name": "iva-file-delivery",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "description": "An Iva plugin for private bot-authored Telegram file delivery with owner-confirmed updates from chat.",
   "homepage": "https://github.com/mamysh/iva-file-delivery#readme",
