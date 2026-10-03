@@ -39,6 +39,11 @@
     "typescript": "~6.0.3",
     "zod": "4.4.3"
   },
+  "overrides": {
+    "eve": {
+      "undici": "8.11.2"
+    }
+  },
   "engines": {
     "node": "24.x"
   }
