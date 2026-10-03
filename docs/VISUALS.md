@@ -50,9 +50,9 @@ Color direction: фон `#080B0A`, текст `#F3F5EF`, мята `#91C9AD`,
 
 ### 1. Обложка
 
-Model: gpt-image-2.5-flare  
-Quality: high  
-Size / Ratio: 1792×768 / 7:3
+- Model: gpt-image-2.5-flare
+- Quality: high
+- Size / Ratio: 1792×768 / 7:3
 
 Prompt:
 
@@ -67,9 +67,9 @@ Constraints: preserve text verbatim, all text fully legible, no extra text, no d
 
 ### 2. Доставка файлов
 
-Model: gpt-image-2.5-flare  
-Quality: high  
-Size / Ratio: 1792×1024 / 7:4
+- Model: gpt-image-2.5-flare
+- Quality: high
+- Size / Ratio: 1792×1024 / 7:4
 
 Prompt:
 
