@@ -31323,7 +31323,7 @@ async function safe(run) {
   }
 }
 function createMcpServer(updater) {
-  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.3.1" });
+  const server2 = new McpServer({ name: "file-delivery-updates", version: "0.3.2" });
   server2.registerTool(
     "iva_file_delivery_update_check",
     {
@@ -31395,12 +31395,19 @@ function safeSha(value) {
   return typeof value === "string" && SHA.test(value) ? value : "";
 }
 function safeVersion(value) {
-  return typeof value === "string" && value.length <= 100 && SEMVER.test(value) ? value : "";
+  if (typeof value !== "string" || value.length > 100 || !SEMVER.test(value))
+    return "";
+  const coreAndPrerelease = value.split("+", 1)[0];
+  const separator = coreAndPrerelease.indexOf("-");
+  if (separator !== -1 && coreAndPrerelease.slice(separator + 1).split(".").some((part) => /^0[0-9]+$/u.test(part))) return "";
+  return value;
 }
 function compareVersions(left, right) {
   const parts = (version2) => {
     const withoutBuild = version2.split("+", 1)[0];
-    const [core, prerelease] = withoutBuild.split("-", 2);
+    const separator = withoutBuild.indexOf("-");
+    const core = separator === -1 ? withoutBuild : withoutBuild.slice(0, separator);
+    const prerelease = separator === -1 ? void 0 : withoutBuild.slice(separator + 1);
     return {
       core: core.split(".").map((part) => BigInt(part)),
       prerelease: prerelease?.split(".") ?? null

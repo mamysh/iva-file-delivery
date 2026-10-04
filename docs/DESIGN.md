@@ -82,6 +82,8 @@ Check читает только запись `file-delivery` из `plugins.json`
 Candidate определяется `git ls-remote` по записанному ref. Manifest загружается с точного SHA
 без редиректов и с лимитом размера; offer создаётся только для более высокой SemVer и
 успешных workflow runs GitHub Actions.
+Версии с дефисами в prerelease-идентификаторах сравниваются целиком; числовые
+prerelease-идентификаторы с ведущим нулём отклоняются как невалидные.
 
 Apply принимает только candidate SHA и случайный token свежего offer с TTL 15 минут. Он
 повторно проверяет установленный SHA, moving ref и CI, записывает job и lock с правами `0600`

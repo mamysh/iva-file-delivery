@@ -1,6 +1,6 @@
 {
   "name": "sh.iva.file-delivery",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "type": "module",
   "eve": {
@@ -14,6 +14,11 @@
   },
   "peerDependencies": {
     "eve": "0.51.1"
+  },
+  "overrides": {
+    "eve": {
+      "undici": "8.11.2"
+    }
   },
   "exports": {
     ".": {
