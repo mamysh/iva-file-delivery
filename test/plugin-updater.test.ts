@@ -9,6 +9,38 @@ import {
 } from "../update/plugin-updater.ts";
 
 const OLD = "1".repeat(40);
+test("update checks preserve hyphenated prerelease identifiers and reject numeric leading zeros", async (t) => {
+  for (const [currentVersion, candidateVersion, expectedState] of [
+    ["0.8.0-alpha-a", "0.8.0-alpha-b", "available"],
+    ["0.8.0-alpha-b", "0.8.0-alpha-a", "current"],
+    ["0.8.0-alpha-a+one", "0.8.0-alpha-a+two", "current"],
+    ["0.8.0-rc.2", "0.8.0-rc.10", "available"],
+    ["0.8.0-rc.1", "0.8.0-rc.01", "error"],
+    ["0.8.0-rc.01", "0.8.0-rc.2", "error"],
+  ] as const) {
+    await t.test(`${currentVersion} → ${candidateVersion}`, async (t) => {
+      const paths = await world(t);
+      await writeFile(join(paths.root, "plugin.json"),
+        JSON.stringify({ name: "file-delivery", version: currentVersion }));
+      const defaults = operations([]);
+      const updater = new PluginUpdater(
+        { PLUGIN_ROOT: paths.root, PLUGIN_DATA: paths.pluginData },
+        {
+          ...defaults,
+          fetch: async (input, init) => String(input).endsWith("/plugin.json")
+            ? Response.json({ name: "file-delivery", version: candidateVersion })
+            : defaults.fetch!(input, init),
+        },
+      );
+      if (expectedState === "error") {
+        await assert.rejects(updater.check(), /(?:CURRENT|CANDIDATE)_VERSION_UNAVAILABLE/u);
+        return;
+      }
+      const result = await updater.check() as Record<string, unknown>;
+      assert.equal(result.state, expectedState);
+    });
+  }
+});
 const NEW = "2".repeat(40);
 const OLD_VERSION = "0.1.1";
 const NEW_VERSION = "0.2.0";
