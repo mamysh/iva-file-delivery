@@ -1,5 +1,10 @@
 # Release process
 
+9 октября 2026 года владелец поручил обновить установленные плагины и проверить
+отправку файлов. Выпуск 0.3.3 устраняет уязвимость зависимости без изменения
+контракта доставки. Свежая реальная canary-отправка остаётся отдельной проверкой;
+не подменять её вызовом со сфабрикованным authenticated context.
+
 1. Обновить version в `package.json`, корневом `package-lock.json`, `plugin/plugin.json`,
    `plugin/sh.iva/package.json` и `plugin/sh.iva/package-lock.json`.
 2. Добавить датированный раздел в `CHANGELOG.md` и при необходимости обновить compatibility.
