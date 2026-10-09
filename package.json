@@ -1,6 +1,6 @@
 {
   "name": "iva-file-delivery",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "private": true,
   "description": "An Iva plugin for private bot-authored Telegram file delivery with owner-confirmed updates from chat.",
   "homepage": "https://github.com/mamysh/iva-file-delivery#readme",
@@ -33,7 +33,7 @@
     "check": "npm run check:secrets && npm run check:distribution && npm run typecheck && npm test && npm run build && npm run check:bundle"
   },
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/sdk": "1.32.1",
     "@types/node": "24.x",
     "esbuild": "0.28.2",
     "eve": "0.51.1",
